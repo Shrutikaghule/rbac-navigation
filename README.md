@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Role-Based Access Control (RBAC) System
 
-## Getting Started
+A Next.js (App Router) role-based navigation and access control system using Zustand, JWT authentication, and Tailwind CSS.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **Framework:** Next.js (App Router)
+* **State Management:** Zustand (with localStorage persistence)
+* **Security & Auth:** (JWT) & Cookies
+* **Styling & Icons:** Tailwind CSS & Lucide React
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## In-Memory Credentials
 
-## Learn More
+All accounts use the universal generic password: `password123`
 
-To learn more about Next.js, take a look at the following resources:
+| User | Email | Orders Permissions | Billing Permissions |
+| :--- | :--- | :--- | :--- |
+| **User A** | `userA@example.com` | `VIEW`, `CREATE` | `VIEW` |
+| **User B** | `userB@example.com` | `VIEW` | `VIEW` |
+| **Custom** | Registered via UI/API | Custom assigned | Custom assigned |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## REST API Endpoints
 
-## Deploy on Vercel
+| Method | Endpoint | Access Rule | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Public | Generates JWT token and session payload |
+| `GET` | `/api/permissions` | Authenticated | Returns current user's module permission matrix |
+| `GET` | `/api/orders` | `Orders: VIEW` | Fetches order list |
+| `POST` | `/api/orders` | `Orders: CREATE` | Creates an order (`403` for User B) |
+| `GET` | `/api/billing` | `Billing: VIEW` | Fetches billing invoice records |
+| `POST` | `/api/users` | Public | Registers an in-memory user with custom permissions |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Application Routes
+
+* `/` – Dashboard portal and active session info.
+* `/login` – User authentication via preset selection or custom credentials.
+* `/register` – Create custom user with module-level permission checkboxes.
+* `/orders` – Orders view (Order creation form guarded by `<Can perform="CREATE">`).
+* `/billing` – Invoices view protected by `<RouteGuard module="Billing" action="VIEW">`.
+* `/unauthorized` – 403 Forbidden page for restricted navigation.
+
+---
