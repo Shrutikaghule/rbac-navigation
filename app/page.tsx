@@ -1,69 +1,113 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useAuthStore } from '@/store/useAuthStore';
+import { ShieldCheck, ArrowRight, UserCheck, Lock } from 'lucide-react';
+
+export default function HomePage() {
+  const { user, logout } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900">
+      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-8">
+        
+        {/* Header */}
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-6">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Role-Based Access Portal</h1>
+            <p className="text-sm text-slate-500">Fine-grained permission system demonstration</p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Current State / Welcome */}
+        {user ? (
+          <div className="p-5 bg-indigo-50/60 rounded-xl border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                <p className="text-xs font-semibold uppercase tracking-wider text-indigo-900">Active Session</p>
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mt-1">{user.name}</h2>
+              <p className="text-sm text-slate-600 font-mono">{user.email} &bull; <span className="font-semibold text-indigo-700">{user.role}</span></p>
+            </div>
+            <div className="flex gap-2">
+              <Link
+                href="/orders"
+                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition"
+              >
+                Go to Orders <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={() => logout()}
+                className="bg-white hover:bg-slate-50 text-rose-600 border border-rose-200 font-medium text-sm px-4 py-2 rounded-lg transition"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-slate-800">No active session detected</p>
+              <p className="text-xs text-slate-500 mt-0.5">Please sign in to view permission-restricted modules.</p>
+            </div>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition shadow-sm"
+            >
+              Sign In <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+
+        {/* Roles & Matrix Guide */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">
+            System Permission Specs
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            
+            {/* User A Card */}
+            <div className="p-4 rounded-xl border border-slate-200 bg-white">
+              <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+                <UserCheck className="w-4 h-4" />
+                <span>User A (Full Orders Access)</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">userA@example.com / password123</p>
+              <ul className="text-xs space-y-1 text-slate-700">
+                <li>&bull; <strong className="text-slate-900">Orders:</strong> VIEW, CREATE</li>
+                <li>&bull; <strong className="text-slate-900">Billing:</strong> VIEW</li>
+              </ul>
+            </div>
+
+            {/* User B Card */}
+            <div className="p-4 rounded-xl border border-slate-200 bg-white">
+              <div className="flex items-center gap-2 text-slate-700 font-semibold mb-2">
+                <Lock className="w-4 h-4" />
+                <span>User B (Read-Only)</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-3">userB@example.com / password123</p>
+              <ul className="text-xs space-y-1 text-slate-700">
+                <li>&bull; <strong className="text-slate-900">Orders:</strong> VIEW only</li>
+                <li>&bull; <strong className="text-slate-900">Billing:</strong> VIEW</li>
+              </ul>
+            </div>
+
+          </div>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
