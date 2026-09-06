@@ -2,15 +2,30 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { ShoppingCart, Receipt, LogOut } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, can, logout } = useAuthStore();
+  const { user, token, can, logout } = useAuthStore();
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  if (!user || pathname === '/login') return null;
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  const isAuthenticated = Boolean(isHydrated && token && user?.email);
+
+  if (!isAuthenticated || pathname === '/login' || pathname === '/register') {
+    return null;
+  }
+
+  const handleSignOut = () => {
+    logout();
+    router.replace('/login');
+  };
 
   return (
     <nav className="w-64 bg-slate-900 text-white min-h-screen p-4 flex flex-col justify-between">
@@ -29,7 +44,9 @@ export function Navbar() {
               <Link
                 href="/orders"
                 className={`flex items-center gap-3 px-3 py-2 rounded text-sm ${
-                  pathname.startsWith('/orders') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                  pathname.startsWith('/orders')
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" />
@@ -43,7 +60,9 @@ export function Navbar() {
               <Link
                 href="/billing"
                 className={`flex items-center gap-3 px-3 py-2 rounded text-sm ${
-                  pathname.startsWith('/billing') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                  pathname.startsWith('/billing')
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-800'
                 }`}
               >
                 <Receipt className="w-4 h-4" />
@@ -55,10 +74,7 @@ export function Navbar() {
       </div>
 
       <button
-        onClick={() => {
-          logout();
-          router.push('/login');
-        }}
+        onClick={handleSignOut}
         className="flex items-center gap-2 text-sm text-rose-400 hover:text-rose-300 p-2 rounded hover:bg-slate-800 transition"
       >
         <LogOut className="w-4 h-4" />

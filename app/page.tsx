@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ShieldCheck, ArrowRight, UserCheck, Lock } from 'lucide-react';
 
 export default function HomePage() {
-  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const { user, token, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -14,6 +16,13 @@ export default function HomePage() {
   }, []);
 
   if (!mounted) return null;
+
+  const isAuthenticated = Boolean(token && user && user.email);
+
+  const handleSignOut = () => {
+    logout();
+    router.replace('/login');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900">
@@ -31,7 +40,7 @@ export default function HomePage() {
         </div>
 
         {/* Current State / Welcome */}
-        {user ? (
+        {isAuthenticated ? (
           <div className="p-5 bg-indigo-50/60 rounded-xl border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
@@ -39,9 +48,11 @@ export default function HomePage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-indigo-900">Active Session</p>
               </div>
               <h2 className="text-lg font-bold text-slate-900 mt-1">{user.name}</h2>
-              <p className="text-sm text-slate-600 font-mono">{user.email} &bull; <span className="font-semibold text-indigo-700">{user.role}</span></p>
+              <p className="text-sm text-slate-600 font-mono">
+                {user.email} &bull; <span className="font-semibold text-indigo-700">{user.role}</span>
+              </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <Link
                 href="/orders"
                 className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition"
@@ -49,7 +60,7 @@ export default function HomePage() {
                 Go to Orders <ArrowRight className="w-4 h-4" />
               </Link>
               <button
-                onClick={() => logout()}
+                onClick={handleSignOut}
                 className="bg-white hover:bg-slate-50 text-rose-600 border border-rose-200 font-medium text-sm px-4 py-2 rounded-lg transition"
               >
                 Sign Out
@@ -77,8 +88,6 @@ export default function HomePage() {
             System Permission Specs
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
-            
-            {/* User A Card */}
             <div className="p-4 rounded-xl border border-slate-200 bg-white">
               <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
                 <UserCheck className="w-4 h-4" />
@@ -91,7 +100,6 @@ export default function HomePage() {
               </ul>
             </div>
 
-            {/* User B Card */}
             <div className="p-4 rounded-xl border border-slate-200 bg-white">
               <div className="flex items-center gap-2 text-slate-700 font-semibold mb-2">
                 <Lock className="w-4 h-4" />
@@ -103,7 +111,6 @@ export default function HomePage() {
                 <li>&bull; <strong className="text-slate-900">Billing:</strong> VIEW</li>
               </ul>
             </div>
-
           </div>
         </div>
 
