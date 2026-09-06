@@ -14,7 +14,9 @@ export async function GET(req: Request) {
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const user = await verifyToken(token);
-  const canView = user?.modules.find((m) => m.name === 'Orders')?.permission.includes('VIEW');
+  if (!user) return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+
+  const canView = user.modules.find((m) => m.name === 'Orders')?.permission.includes('VIEW');
 
   if (!canView) {
     return NextResponse.json({ error: 'Forbidden: Missing VIEW permission' }, { status: 403 });
@@ -30,7 +32,9 @@ export async function POST(req: Request) {
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const user = await verifyToken(token);
-  const canCreate = user?.modules.find((m) => m.name === 'Orders')?.permission.includes('CREATE');
+  if (!user) return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+
+  const canCreate = user.modules.find((m) => m.name === 'Orders')?.permission.includes('CREATE');
 
   if (!canCreate) {
     return NextResponse.json({ error: 'Forbidden: Insufficient permissions to create orders' }, { status: 403 });
